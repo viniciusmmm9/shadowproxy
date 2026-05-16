@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Shadow Login</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root { --primary: #ff0077; --secondary: #00f2ff; --bg: #050507; --text: #ffffff; }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', sans-serif; }
+        body { background-color: var(--bg); color: var(--text); overflow: hidden; height: 100vh; width: 100vw; user-select: none; }
+        .toast { position: fixed; bottom: -100px; left: 50%; transform: translateX(-50%); padding: 16px; border-radius: 12px; font-weight: bold; z-index: 1000; transition: 0.4s; text-align: center; width: 90%; max-width: 350px; }
+        .toast.show { bottom: 40px; }
+        #canvasChackes { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 1; opacity: 0.3; }
+        .container { position: absolute; z-index: 2; width: 100%; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+        .box { width: 88%; max-width: 380px; text-align: center; padding: 40px 30px; border-radius: 20px; background: rgba(14, 14, 18, 0.95); border: 1px solid var(--secondary); box-shadow: 0 0 40px rgba(0, 242, 255, 0.2); }
+        input { width: 100%; background: #1a1a24; border: 1px solid #333; padding: 18px; border-radius: 12px; color: #fff; margin: 20px 0; outline: none; text-align: center; font-size: 16px; font-family: monospace; }
+        .btn { width: 100%; padding: 16px; border-radius: 12px; border: none; font-weight: 900; font-size: 16px; cursor: pointer; text-transform: uppercase; }
+        .btn-login { background: var(--secondary); color: #000; box-shadow: 0 4px 20px rgba(0, 242, 255, 0.4); }
+        .btn-install { background: var(--primary); color: #fff; box-shadow: 0 4px 20px rgba(255, 0, 119, 0.4); margin-top: 20px;}
+        .dev-info { font-size: 12px; color: #555; margin-top: 15px; font-family: monospace; }
+    </style>
+</head>
+<body>
+    <div id="customToast" class="toast"></div>
+    <canvas id="canvasChackes"></canvas>
+
+    <div id="telaLogin" class="container">
+        <div class="box">
+            <i class="fa-solid fa-shield-halved" style="font-size: 55px; color: var(--secondary);"></i>
+            <h2 style="margin-top: 18px; font-weight: 900; font-size: 22px;">SHADOW VIP</h2>
+            <input type="text" id="keyInput" placeholder="Sua Licença (Ex: FFH4X...)">
+            <button class="btn btn-login" onclick="validarAcesso()">ENTRAR</button>
+            <div id="meuUid" class="dev-info"></div>
+        </div>
+    </div>
+
+    <div id="telaDownload" class="container" style="display: none;">
+        <div class="box" style="border-color: var(--primary);">
+            <i class="fa-solid fa-circle-check" style="font-size: 55px; color: #00ff88;"></i>
+            <h2 style="margin-top: 18px; font-weight: 900; font-size: 22px;">ACESSO LIBERADO</h2>
+            <p style="font-size: 14px; color: #aaa; margin-top: 10px;">Baixe o perfil abaixo e instale nos Ajustes.</p>
+            <div style="background: #111; padding: 15px; border-radius: 10px; margin-top: 20px; border: 1px dashed #333;">
+                <p id="infoPlano" style="color: var(--secondary); font-weight: bold;"></p>
+            </div>
+            <button class="btn btn-install" onclick="baixarPerfil()">BAIXAR SHADOW PROXY</button>
+        </div>
+    </div>
+
+    <script>
+        const API = "https://gerador-key-e364f-default-rtdb.firebaseio.com/keys";
+        let deviceID = localStorage.getItem("shadow_hwid");
+        if(!deviceID) { deviceID = "DEV-" + Math.random().toString(36).substr(2, 9).toUpperCase(); localStorage.setItem("shadow_hwid", deviceID); }
+        document.getElementById('meuUid').innerText = "HWID: " + deviceID;
+
+        const canvas = document.getElementById('canvasChackes'); const ctx = canvas.getContext('2d');
+        canvas.width = window.innerWidth; canvas.height = window.innerHeight;
+        const drops = Array.from({ length: canvas.width / 16 }).fill(canvas.height);
+        setInterval(() => {
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.08)'; ctx.fillRect(0, 0, canvas.width, canvas.height);
+            ctx.fillStyle = '#00f2ff'; ctx.font = '16px monospace';
+            for (let i = 0; i < drops.length; i++) {
+                ctx.fillText("01".charAt(Math.floor(Math.random() * 2)), i * 16, drops[i] * 16);
+                if (drops[i] * 16 > canvas.height && Math.random() > 0.975) drops[i] = 0; drops[i]++;
+            }
+        }, 30);
+
+        function mostrarAviso(msg, tipo = 'info') {
+            const t = document.getElementById('customToast'); t.innerText = msg;
+            t.style.background = tipo === 'erro' ? '#e53e3e' : '#00ff88'; t.style.color = '#000';
+            t.className = "toast show"; setTimeout(() => { t.className = "toast"; }, 3000);
+        }
+
+        async function validarAcesso() {
+            let k = document.getElementById('keyInput').value.trim();
+            if(!k) return mostrarAviso("Digite a licença!", "erro");
+            try {
+                let res = await fetch(API + "/" + k + ".json"); let data = await res.json();
+                if(!data) return mostrarAviso("Licença Inexistente!", "erro");
+                if(data.status !== 'ativa') return mostrarAviso("Licença " + data.status, "erro");
+                
+                if(data.validade !== 'Permanente' && new Date(data.validade) < new Date()) {
+                    await fetch(API + "/" + k + ".json", { method: 'PATCH', body: JSON.stringify({ status: "expirada" }) });
+                    return mostrarAviso("Licença Expirada!", "erro");
+                }
+
+                if(data.uid === "") await fetch(API + "/" + k + ".json", { method: 'PATCH', body: JSON.stringify({ uid: deviceID }) });
+                else if (data.uid !== deviceID) return mostrarAviso("Vinculada a outro aparelho!", "erro");
+
+                document.getElementById('infoPlano').innerText = "PLANO: " + data.dias + " DIAS";
+                mostrarAviso("Login Aprovado!", "sucesso");
+                setTimeout(() => { document.getElementById('telaLogin').style.display = 'none'; document.getElementById('telaDownload').style.display = 'flex'; }, 1000);
+            } catch(e) { mostrarAviso("Erro de Conexão", "erro"); }
+        }
+
+        function baixarPerfil() {
+            const certB64 = `MIIDNTCCAh2gAwIBAgIUHkedpXCpfoWrGLuIBrUif4+bCdIwDQYJKoZIhvcNAQELBQAwKDESMBAGA1UEAwwJbWl0bXByb3h5MRIwEAYDVQQKDAltaXRtcHJveHkwHhcNMjYwMzIwMDEzNjQzWhcNMzYwMzE5MDEzNjQzWjAoMRIwEAYDVQQDDAltaXRtcHJveHkxEjAQBgNVBAoMCW1pdG1wcm94eTCCASIwDQYJKoZIhvcNAQEBBQADggEPADCCAQoCggEBANuOMyJa08Q3cmcz2Mtjg4uqEKva9gTxzwSSxPExikL6mPdWxFmLGfFRo0R0yIUQI5v9D0oLVaRm8m63tBGfBjtqOZTEa7sjuw1MhUu0d6QOX1sL6mr+1g80t2IH7+8ai2lHwJyqqDStwYbvmbWz9OVCQ2JfWfs3Y+jLXORLQoFgCHlE+BIJW43WUt3qJ7Pq6PfHfk8ZoW0jfOyVfYVsxfHwlZvFj2iTDO8Y9ga/lnd9FsB9Ekh/uG3gJFpEDu/tf8CDQ3k6EtrK6HQHzWiVqHm0WUvt69aKn+cBuQlcz9CsTt18+tv98RRELLZKaBV80QpD1M5mNvX6nPmZuvxC7yMCAwEAAaNXMFUwDwYDVR0TAQH/BAUwAwEB/zATBgNVHSUEDDAKBggrBgEFBQcDATAOBgNVHQ8BAf8EBAMCAQYwHQYDVR0OBBYEFMAPEwIQ7F24x2Mqot0nb7oFo4GYMA0GCSqGSIb3DQEBCwUAA4IBAQCYr7difCUxAGbTcw02ldK3LRGFr3sWgnjzztp1wQ9jQ7rPsLVvhFK5lXpm4GGXfhLgYsXcrR56Afr0KqLOcvsmFPZJGnVYpKae35yPaB3eP7yhqNJyaqgtypZabtcOdvcplnbU3Zm9niAPSmiR7Pq0DhGN63kw/GRneq9whO7MDfbYbCCl3xAnjhbsKoLA3PYWoLWN+002xpa31D7+Lg/0o/NkWRMxBv++SZUOxIbqEedZjoMoqykR/2UibJ/UAK/+aZilSnGsVMQV7efv3M3MsSbFcIv/mQw0zcreQfV8BhVpKWc63D1vMXG8pLp2oj4LmvUVKb5fAv//otHXnSY2`;
+            
+            const xmlProfile = `<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0"><dict><key>PayloadContent</key><array><dict><key>PayloadCertificateFileName</key><string>shadow.proxy.cer</string><key>PayloadContent</key><data>${certB64}</data><key>PayloadDescription</key><string>Credenciais de segurança Shadow VIP</string><key>PayloadDisplayName</key><string>shadow.proxy Certificado</string><key>PayloadIdentifier</key><string>com.shadow.proxy.credential</string><key>PayloadType</key><string>com.apple.security.root</string><key>PayloadUUID</key><string>A3F8C1D2-9E4B-4B7E-AD52-1A63F4B7C2D1</string><key>PayloadVersion</key><integer>1</integer></dict></array><key>PayloadDescription</key><string>Perfil de configuração de proxy VIP</string><key>PayloadDisplayName</key><string>shadow.proxy</string><key>PayloadIdentifier</key><string>com.shadow.proxy.profile</string><key>PayloadOrganization</key><string>Shadow Community</string><key>PayloadRemovalDisallowed</key><false/><key>PayloadType</key><string>Configuration</string><key>PayloadUUID</key><string>E6B9D2C1-3A4B-4E32-BD63-2F453B8A4D9A</string><key>PayloadVersion</key><integer>1</integer></dict></plist>`;
+
+            let blob = new Blob([xmlProfile], { type: 'application/x-apple-aspen-config' });
+            let url = URL.createObjectURL(blob);
+            let a = document.createElement('a'); a.href = url; a.download = 'shadow.mobileconfig';
+            document.body.appendChild(a); a.click(); document.body.removeChild(a);
+        }
+    </script>
+</body>
+</html>
+
