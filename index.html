@@ -56,11 +56,11 @@ body {
   text-align: center; position: relative; z-index: 10;
 }
 
-/* TEMPORIZADOR TOP DIREITO */
+/* TEMPORIZADOR TOP DIREITO (AGORA COM SEGUNDOS) */
 .timer-badge {
   position: absolute; top: -12px; right: 15px;
   background: linear-gradient(90deg, var(--primary), var(--secondary));
-  padding: 5px 12px; border-radius: 20px; font-size: 10px; font-weight: 900;
+  padding: 5px 12px; border-radius: 20px; font-size: 11px; font-weight: 900;
   letter-spacing: 1px; box-shadow: 0 5px 15px rgba(255,0,119,0.4); display: none;
 }
 
@@ -252,7 +252,7 @@ function limparLogin() {
   localStorage.removeItem('shadow_saved_key');
 }
 
-// INICIALIZAÇÃO E CRONÔMETRO
+// INICIALIZAÇÃO E CRONÔMETRO AO VIVO (COM SEGUNDOS)
 function abrirPainel(expDate) {
   document.getElementById('login-screen').style.display = 'none';
   document.getElementById('main-content').style.display = 'block';
@@ -270,13 +270,16 @@ function abrirPainel(expDate) {
       if(diff <= 0) {
         clearInterval(timerInterval);
         limparLogin();
-        window.location.href = "expire://"; // Redirecionamento customizado
+        // Recarrega a página ao expirar o tempo limite para fechar as injeções
+        window.location.reload(); 
       } else {
         let d = Math.floor(diff / (1000 * 60 * 60 * 24));
         let h = Math.floor((diff / (1000 * 60 * 60)) % 24);
         let m = Math.floor((diff / 1000 / 60) % 60);
         let s = Math.floor((diff / 1000) % 60);
-        badge.innerText = d + "d " + (h<10?'0':'')+h + "h " + (m<10?'0':'')+m + "m";
+        
+        // Agora mostra os segundos também caindo ao vivo!
+        badge.innerText = d + "d " + (h<10?'0':'')+h + "h " + (m<10?'0':'')+m + "m " + (s<10?'0':'')+s + "s";
       }
     }, 1000);
   }
@@ -307,9 +310,14 @@ function iniciarInjecao() {
   let interval = setInterval(() => {
     if (width >= 100) {
       clearInterval(interval);
-      document.querySelector('.loader-text').innerText = "SUCESSO!";
+      document.querySelector('.loader-text').innerText = "SUCESSO! ABRINDO JOGO...";
       document.querySelector('.loader-text').style.color = "#00ff88";
-      setTimeout(() => { window.location.href = "done://"; }, 800);
+      
+      // Abre o Free Fire automaticamente 
+      setTimeout(() => { 
+        window.location.href = "freefire://"; 
+      }, 800);
+      
     } else {
       width += Math.random() * 8;
       if(width > 100) width = 100;
