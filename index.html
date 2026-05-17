@@ -1,111 +1,322 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Shadow Login</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <style>
-        :root { --primary: #ff0077; --secondary: #00f2ff; --bg: #050507; --text: #ffffff; }
-        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', sans-serif; }
-        body { background-color: var(--bg); color: var(--text); overflow: hidden; height: 100vh; width: 100vw; user-select: none; }
-        .toast { position: fixed; bottom: -100px; left: 50%; transform: translateX(-50%); padding: 16px; border-radius: 12px; font-weight: bold; z-index: 1000; transition: 0.4s; text-align: center; width: 90%; max-width: 350px; }
-        .toast.show { bottom: 40px; }
-        #canvasChackes { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 1; opacity: 0.3; }
-        .container { position: absolute; z-index: 2; width: 100%; height: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; }
-        .box { width: 88%; max-width: 380px; text-align: center; padding: 40px 30px; border-radius: 20px; background: rgba(14, 14, 18, 0.95); border: 1px solid var(--secondary); box-shadow: 0 0 40px rgba(0, 242, 255, 0.2); }
-        input { width: 100%; background: #1a1a24; border: 1px solid #333; padding: 18px; border-radius: 12px; color: #fff; margin: 20px 0; outline: none; text-align: center; font-size: 16px; font-family: monospace; }
-        .btn { width: 100%; padding: 16px; border-radius: 12px; border: none; font-weight: 900; font-size: 16px; cursor: pointer; text-transform: uppercase; }
-        .btn-login { background: var(--secondary); color: #000; box-shadow: 0 4px 20px rgba(0, 242, 255, 0.4); }
-        .btn-install { background: var(--primary); color: #fff; box-shadow: 0 4px 20px rgba(255, 0, 119, 0.4); margin-top: 20px;}
-        .dev-info { font-size: 12px; color: #555; margin-top: 15px; font-family: monospace; }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<style>
+:root {
+  --primary: #9d00ff;
+  --secondary: #ff0077;
+  --bg: #050508;
+  --glass: rgba(15, 15, 20, 0.6);
+  --border: rgba(157, 0, 255, 0.3);
+}
+
+* { box-sizing: border-box; font-family: 'SF Pro Display', -apple-system, sans-serif; }
+
+body {
+  background: var(--bg);
+  color: #fff;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+  overflow: hidden;
+}
+
+/* ANIMAÇÃO DE FUNDO SHADOW (PARTÍCULAS E BRILHO) */
+.bg-animation {
+  position: absolute; top: 0; left: 0; width: 100vw; height: 100vh; z-index: 0;
+  background: radial-gradient(circle at 50% 50%, rgba(157, 0, 255, 0.15), transparent 60%);
+  animation: pulseBg 6s infinite alternate;
+}
+@keyframes pulseBg { 0% { transform: scale(1); opacity: 0.8; } 100% { transform: scale(1.1); opacity: 1; } }
+
+.particles {
+  position: absolute; width: 100%; height: 100%; z-index: 1;
+  background-image: 
+    radial-gradient(var(--secondary) 1px, transparent 1px),
+    radial-gradient(var(--primary) 1px, transparent 1px);
+  background-size: 50px 50px;
+  background-position: 0 0, 25px 25px;
+  opacity: 0.1;
+  animation: moveParticles 20s linear infinite;
+}
+@keyframes moveParticles { 0% { background-position: 0 0, 25px 25px; } 100% { background-position: 100px 100px, 125px 125px; } }
+
+/* CONTAINER VIDRO / NEON */
+.container {
+  width: 90%; max-width: 340px;
+  background: var(--glass);
+  backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+  border-radius: 20px; padding: 35px 25px;
+  border: 1px solid var(--border);
+  box-shadow: 0 0 40px rgba(157, 0, 255, 0.2), inset 0 0 20px rgba(157, 0, 255, 0.1);
+  text-align: center; position: relative; z-index: 10;
+}
+
+/* TEMPORIZADOR TOP DIREITO */
+.timer-badge {
+  position: absolute; top: -12px; right: 15px;
+  background: linear-gradient(90deg, var(--primary), var(--secondary));
+  padding: 5px 12px; border-radius: 20px; font-size: 10px; font-weight: 900;
+  letter-spacing: 1px; box-shadow: 0 5px 15px rgba(255,0,119,0.4); display: none;
+}
+
+/* ESTILOS TELA DE LOGIN */
+#login-screen { display: flex; flex-direction: column; align-items: center; }
+.shadow-title { font-size: 32px; font-weight: 900; letter-spacing: 4px; text-transform: uppercase; margin-bottom: 5px; background: linear-gradient(90deg, var(--primary), var(--secondary)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; filter: drop-shadow(0 0 10px rgba(157,0,255,0.5)); }
+.shadow-subtitle { font-size: 10px; color: #aaa; letter-spacing: 2px; margin-bottom: 30px; text-transform: uppercase; }
+
+input[type="text"] {
+  width: 100%; background: rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.1);
+  padding: 16px; border-radius: 12px; color: #fff; text-align: center; font-size: 15px;
+  margin-bottom: 15px; outline: none; transition: 0.3s;
+}
+input[type="text"]:focus { border-color: var(--secondary); box-shadow: 0 0 15px rgba(255,0,119,0.3); }
+
+/* CHECKBOX LEMBRE-SE */
+.remember-row { display: flex; align-items: center; justify-content: center; gap: 8px; margin-bottom: 25px; font-size: 12px; color: #bbb; cursor: pointer; }
+.custom-checkbox { width: 16px; height: 16px; border: 2px solid var(--primary); border-radius: 4px; display: flex; align-items: center; justify-content: center; transition: 0.2s; }
+.custom-checkbox.checked { background: var(--primary); }
+.custom-checkbox.checked::after { content: '✔'; font-size: 10px; color: #fff; font-weight: bold; }
+
+.btn-action {
+  width: 100%; padding: 16px; background: linear-gradient(45deg, var(--primary), var(--secondary));
+  color: #fff; border: none; border-radius: 12px; font-weight: 900; text-transform: uppercase;
+  letter-spacing: 1px; cursor: pointer; box-shadow: 0 5px 20px rgba(157, 0, 255, 0.4); transition: 0.2s;
+}
+.btn-action:active { transform: scale(0.96); }
+
+/* ESTILOS TELA PRINCIPAL SHADOW TRICK */
+#main-content { display: none; }
+.panel-title { font-size: 22px; font-weight: 900; margin-bottom: 25px; color: #fff; text-shadow: 0 0 10px rgba(255,255,255,0.2); }
+.panel-title span { color: var(--secondary); }
+
+.opt-row {
+  background: rgba(0, 0, 0, 0.3); margin-bottom: 12px; padding: 15px 20px;
+  border-radius: 14px; display: flex; justify-content: space-between; align-items: center;
+  border: 1px solid rgba(255,255,255,0.05); transition: 0.3s;
+}
+.opt-row.active { background: rgba(157, 0, 255, 0.15); border-color: var(--primary); box-shadow: 0 0 15px rgba(157, 0, 255, 0.2); transform: scale(1.02); }
+
+.switch { width: 42px; height: 22px; position: relative; }
+.switch input { opacity: 0; width: 0; height: 0; }
+.slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background: #222; border-radius: 20px; transition: 0.3s; }
+.slider:before { position: absolute; content: ""; height: 16px; width: 16px; left: 3px; bottom: 3px; background: #555; border-radius: 50%; transition: 0.3s; }
+input:checked + .slider { background: rgba(255, 0, 119, 0.3); }
+input:checked + .slider:before { transform: translateX(20px); background: var(--secondary); box-shadow: 0 0 12px var(--secondary); animation: glowPulse 1.5s infinite; }
+
+@keyframes glowPulse { 0% { box-shadow: 0 0 0 0 rgba(255, 0, 119, 0.6); } 70% { box-shadow: 0 0 0 8px rgba(255, 0, 119, 0); } 100% { box-shadow: 0 0 0 0 rgba(255, 0, 119, 0); } }
+
+.range-container { margin: 25px 0; text-align: left; }
+input[type=range] { width: 100%; -webkit-appearance: none; background: #222; height: 6px; border-radius: 10px; }
+input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 18px; height: 18px; background: #fff; border-radius: 50%; border: 3px solid var(--secondary); box-shadow: 0 0 10px var(--secondary); }
+
+/* Loader sem logs */
+#loader-area { display: none; margin-top: 20px; }
+.progress-bg { width: 100%; height: 8px; background: #111; border-radius: 10px; overflow: hidden; border: 1px solid rgba(255,255,255,0.1); }
+.progress-bar { width: 0%; height: 100%; background: linear-gradient(90deg, var(--primary), var(--secondary)); transition: 0.1s; box-shadow: 0 0 10px var(--secondary); }
+.loader-text { font-size: 11px; color: var(--secondary); font-weight: bold; margin-bottom: 8px; letter-spacing: 1px; text-transform: uppercase; animation: blink 1s infinite alternate; }
+@keyframes blink { 0% { opacity: 0.5; } 100% { opacity: 1; } }
+
+#msg-erro { color: #ff3b3b; font-size: 11px; margin-top: 10px; font-weight: bold; display: none; text-transform: uppercase; }
+</style>
 </head>
 <body>
-    <div id="customToast" class="toast"></div>
-    <canvas id="canvasChackes"></canvas>
 
-    <div id="telaLogin" class="container">
-        <div class="box">
-            <i class="fa-solid fa-shield-halved" style="font-size: 55px; color: var(--secondary);"></i>
-            <h2 style="margin-top: 18px; font-weight: 900; font-size: 22px;">SHADOW VIP</h2>
-            <input type="text" id="keyInput" placeholder="Sua Licença (Ex: FFH4X...)">
-            <button class="btn btn-login" onclick="validarAcesso()">ENTRAR</button>
-            <div id="meuUid" class="dev-info"></div>
-        </div>
+<div class="bg-animation"></div>
+<div class="particles"></div>
+
+<div class="container">
+  
+  <div class="timer-badge" id="timerBadge">VERIFICANDO...</div>
+
+  <div id="login-screen">
+    <div class="shadow-title">SHADOW</div>
+    <div class="shadow-subtitle">Painel de Acesso Restrito</div>
+
+    <input type="text" id="keyInput" placeholder="DIGITE SUA KEY">
+
+    <div class="remember-row" onclick="toggleRemember()">
+      <div class="custom-checkbox" id="checkLembrar"></div>
+      <span>Lembre-se de mim</span>
     </div>
 
-    <div id="telaDownload" class="container" style="display: none;">
-        <div class="box" style="border-color: var(--primary);">
-            <i class="fa-solid fa-circle-check" style="font-size: 55px; color: #00ff88;"></i>
-            <h2 style="margin-top: 18px; font-weight: 900; font-size: 22px;">ACESSO LIBERADO</h2>
-            <p style="font-size: 14px; color: #aaa; margin-top: 10px;">Baixe o perfil abaixo e instale nos Ajustes.</p>
-            <div style="background: #111; padding: 15px; border-radius: 10px; margin-top: 20px; border: 1px dashed #333;">
-                <p id="infoPlano" style="color: var(--secondary); font-weight: bold;"></p>
-            </div>
-            <button class="btn btn-install" onclick="baixarPerfil()">BAIXAR SHADOW PROXY</button>
-        </div>
+    <button class="btn-action" onclick="fazerLogin()">LOGAR</button>
+    <div id="msg-erro">KEY INVÁLIDA</div>
+  </div>
+
+  <div id="main-content">
+    <div class="panel-title">SHADOW <span>TRICK</span></div>
+
+    <div class="opt-row" id="row1">
+      <span style="font-size:14px; font-weight:bold;">Aimbot legit</span>
+      <label class="switch"><input type="checkbox" onchange="toggleRow('row1')"><span class="slider"></span></label>
     </div>
 
-    <script>
-        const API = "https://gerador-key-e364f-default-rtdb.firebaseio.com/keys";
-        let deviceID = localStorage.getItem("shadow_hwid");
-        if(!deviceID) { deviceID = "DEV-" + Math.random().toString(36).substr(2, 9).toUpperCase(); localStorage.setItem("shadow_hwid", deviceID); }
-        document.getElementById('meuUid').innerText = "HWID: " + deviceID;
+    <div class="opt-row" id="row2">
+      <span style="font-size:14px; font-weight:bold;">Precision</span>
+      <label class="switch"><input type="checkbox" onchange="toggleRow('row2')"><span class="slider"></span></label>
+    </div>
 
-        const canvas = document.getElementById('canvasChackes'); const ctx = canvas.getContext('2d');
-        canvas.width = window.innerWidth; canvas.height = window.innerHeight;
-        const drops = Array.from({ length: canvas.width / 16 }).fill(canvas.height);
-        setInterval(() => {
-            ctx.fillStyle = 'rgba(0, 0, 0, 0.08)'; ctx.fillRect(0, 0, canvas.width, canvas.height);
-            ctx.fillStyle = '#00f2ff'; ctx.font = '16px monospace';
-            for (let i = 0; i < drops.length; i++) {
-                ctx.fillText("01".charAt(Math.floor(Math.random() * 2)), i * 16, drops[i] * 16);
-                if (drops[i] * 16 > canvas.height && Math.random() > 0.975) drops[i] = 0; drops[i]++;
-            }
-        }, 30);
+    <div class="opt-row" id="row3">
+      <span style="font-size:14px; font-weight:bold;">MELHORAR FPS</span>
+      <label class="switch"><input type="checkbox" onchange="toggleRow('row3')"><span class="slider"></span></label>
+    </div>
 
-        function mostrarAviso(msg, tipo = 'info') {
-            const t = document.getElementById('customToast'); t.innerText = msg;
-            t.style.background = tipo === 'erro' ? '#e53e3e' : '#00ff88'; t.style.color = '#000';
-            t.className = "toast show"; setTimeout(() => { t.className = "toast"; }, 3000);
-        }
+    <div class="range-container">
+      <div style="display:flex; justify-content:space-between; font-size:11px; margin-bottom:10px; color:#aaa; font-weight:bold; letter-spacing:1px;">
+        <span>PRECISION LEVEL</span>
+        <span id="pct" style="color:var(--secondary);">0%</span>
+      </div>
+      <input type="range" min="0" max="100" value="0" oninput="document.getElementById('pct').innerText = this.value + '%'">
+    </div>
 
-        async function validarAcesso() {
-            let k = document.getElementById('keyInput').value.trim();
-            if(!k) return mostrarAviso("Digite a licença!", "erro");
-            try {
-                let res = await fetch(API + "/" + k + ".json"); let data = await res.json();
-                if(!data) return mostrarAviso("Licença Inexistente!", "erro");
-                if(data.status !== 'ativa') return mostrarAviso("Licença " + data.status, "erro");
-                
-                if(data.validade !== 'Permanente' && new Date(data.validade) < new Date()) {
-                    await fetch(API + "/" + k + ".json", { method: 'PATCH', body: JSON.stringify({ status: "expirada" }) });
-                    return mostrarAviso("Licença Expirada!", "erro");
-                }
+    <button class="btn-action" id="mainBtn" onclick="iniciarInjecao()">INICIAR INJEÇÃO</button>
 
-                if(data.uid === "") await fetch(API + "/" + k + ".json", { method: 'PATCH', body: JSON.stringify({ uid: deviceID }) });
-                else if (data.uid !== deviceID) return mostrarAviso("Vinculada a outro aparelho!", "erro");
+    <div id="loader-area">
+      <div class="loader-text">Injetando Bypass...</div>
+      <div class="progress-bg"><div class="progress-bar" id="bar"></div></div>
+    </div>
+  </div>
 
-                document.getElementById('infoPlano').innerText = "PLANO: " + data.dias + " DIAS";
-                mostrarAviso("Login Aprovado!", "sucesso");
-                setTimeout(() => { document.getElementById('telaLogin').style.display = 'none'; document.getElementById('telaDownload').style.display = 'flex'; }, 1000);
-            } catch(e) { mostrarAviso("Erro de Conexão", "erro"); }
-        }
+</div>
 
-        function baixarPerfil() {
-            const certB64 = `MIIDNTCCAh2gAwIBAgIUHkedpXCpfoWrGLuIBrUif4+bCdIwDQYJKoZIhvcNAQELBQAwKDESMBAGA1UEAwwJbWl0bXByb3h5MRIwEAYDVQQKDAltaXRtcHJveHkwHhcNMjYwMzIwMDEzNjQzWhcNMzYwMzE5MDEzNjQzWjAoMRIwEAYDVQQDDAltaXRtcHJveHkxEjAQBgNVBAoMCW1pdG1wcm94eTCCASIwDQYJKoZIhvcNAQEBBQADggEPADCCAQoCggEBANuOMyJa08Q3cmcz2Mtjg4uqEKva9gTxzwSSxPExikL6mPdWxFmLGfFRo0R0yIUQI5v9D0oLVaRm8m63tBGfBjtqOZTEa7sjuw1MhUu0d6QOX1sL6mr+1g80t2IH7+8ai2lHwJyqqDStwYbvmbWz9OVCQ2JfWfs3Y+jLXORLQoFgCHlE+BIJW43WUt3qJ7Pq6PfHfk8ZoW0jfOyVfYVsxfHwlZvFj2iTDO8Y9ga/lnd9FsB9Ekh/uG3gJFpEDu/tf8CDQ3k6EtrK6HQHzWiVqHm0WUvt69aKn+cBuQlcz9CsTt18+tv98RRELLZKaBV80QpD1M5mNvX6nPmZuvxC7yMCAwEAAaNXMFUwDwYDVR0TAQH/BAUwAwEB/zATBgNVHSUEDDAKBggrBgEFBQcDATAOBgNVHQ8BAf8EBAMCAQYwHQYDVR0OBBYEFMAPEwIQ7F24x2Mqot0nb7oFo4GYMA0GCSqGSIb3DQEBCwUAA4IBAQCYr7difCUxAGbTcw02ldK3LRGFr3sWgnjzztp1wQ9jQ7rPsLVvhFK5lXpm4GGXfhLgYsXcrR56Afr0KqLOcvsmFPZJGnVYpKae35yPaB3eP7yhqNJyaqgtypZabtcOdvcplnbU3Zm9niAPSmiR7Pq0DhGN63kw/GRneq9whO7MDfbYbCCl3xAnjhbsKoLA3PYWoLWN+002xpa31D7+Lg/0o/NkWRMxBv++SZUOxIbqEedZjoMoqykR/2UibJ/UAK/+aZilSnGsVMQV7efv3M3MsSbFcIv/mQw0zcreQfV8BhVpKWc63D1vMXG8pLp2oj4LmvUVKb5fAv//otHXnSY2`;
-            
-            const xmlProfile = `<?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
-<plist version="1.0"><dict><key>PayloadContent</key><array><dict><key>PayloadCertificateFileName</key><string>shadow.proxy.cer</string><key>PayloadContent</key><data>${certB64}</data><key>PayloadDescription</key><string>Credenciais de segurança Shadow VIP</string><key>PayloadDisplayName</key><string>shadow.proxy Certificado</string><key>PayloadIdentifier</key><string>com.shadow.proxy.credential</string><key>PayloadType</key><string>com.apple.security.root</string><key>PayloadUUID</key><string>A3F8C1D2-9E4B-4B7E-AD52-1A63F4B7C2D1</string><key>PayloadVersion</key><integer>1</integer></dict></array><key>PayloadDescription</key><string>Perfil de configuração de proxy VIP</string><key>PayloadDisplayName</key><string>shadow.proxy</string><key>PayloadIdentifier</key><string>com.shadow.proxy.profile</string><key>PayloadOrganization</key><string>Shadow Community</string><key>PayloadRemovalDisallowed</key><false/><key>PayloadType</key><string>Configuration</string><key>PayloadUUID</key><string>E6B9D2C1-3A4B-4E32-BD63-2F453B8A4D9A</string><key>PayloadVersion</key><integer>1</integer></dict></plist>`;
+<script>
+// URL do Banco Firebase Encriptada em Base64 (Antirroubo)
+const FB_API = atob("aHR0cHM6Ly9nZXJhZG9yLWtleS1lMzY0Zi1kZWZhdWx0LXJ0ZGIuZmlyZWJhc2Vpby5jb20va2V5cw==");
+let timerInterval;
+let isRememberChecked = false;
 
-            let blob = new Blob([xmlProfile], { type: 'application/x-apple-aspen-config' });
-            let url = URL.createObjectURL(blob);
-            let a = document.createElement('a'); a.href = url; a.download = 'shadow.mobileconfig';
-            document.body.appendChild(a); a.click(); document.body.removeChild(a);
-        }
-    </script>
+function toggleRemember() {
+  isRememberChecked = !isRememberChecked;
+  const cb = document.getElementById('checkLembrar');
+  if(isRememberChecked) cb.classList.add('checked');
+  else cb.classList.remove('checked');
+}
+
+function showError(msg) {
+  let el = document.getElementById('msg-erro');
+  el.innerText = msg; el.style.display = 'block';
+  setTimeout(() => el.style.display = 'none', 3000);
+}
+
+// LÓGICA DE LOGIN COM FIREBASE
+async function fazerLogin(autoKey = null) {
+  let key = autoKey || document.getElementById('keyInput').value.trim();
+  if(!key) return showError('DIGITE UMA KEY!');
+
+  document.querySelector('#login-screen .btn-action').innerText = "VERIFICANDO...";
+
+  try {
+    let req = await fetch(FB_API + "/" + key + ".json");
+    let data = await req.json();
+
+    if(!data) {
+      limparLogin();
+      document.querySelector('#login-screen .btn-action').innerText = "LOGAR";
+      return showError('KEY INEXISTENTE');
+    }
+    
+    if(data.status !== 'ativa') {
+      limparLogin();
+      document.querySelector('#login-screen .btn-action').innerText = "LOGAR";
+      return showError('KEY ' + data.status.toUpperCase());
+    }
+
+    let isPerm = data.validade === 'Permanente';
+    let expDate = isPerm ? null : new Date(data.validade);
+
+    if(!isPerm && expDate < new Date()) {
+      limparLogin();
+      document.querySelector('#login-screen .btn-action').innerText = "LOGAR";
+      return showError('KEY EXPIRADA');
+    }
+
+    // Login Aprovado
+    if(isRememberChecked && !autoKey) {
+      localStorage.setItem('shadow_saved_key', key);
+    }
+
+    abrirPainel(expDate);
+
+  } catch(e) {
+    document.querySelector('#login-screen .btn-action').innerText = "LOGAR";
+    showError('ERRO DE CONEXÃO');
+  }
+}
+
+function limparLogin() {
+  localStorage.removeItem('shadow_saved_key');
+}
+
+// INICIALIZAÇÃO E CRONÔMETRO
+function abrirPainel(expDate) {
+  document.getElementById('login-screen').style.display = 'none';
+  document.getElementById('main-content').style.display = 'block';
+  
+  let badge = document.getElementById('timerBadge');
+  badge.style.display = 'block';
+
+  if(!expDate) {
+    badge.innerText = "PLANO VITALÍCIO";
+  } else {
+    timerInterval = setInterval(() => {
+      let now = new Date();
+      let diff = expDate - now;
+
+      if(diff <= 0) {
+        clearInterval(timerInterval);
+        limparLogin();
+        window.location.href = "expire://"; // Redirecionamento customizado
+      } else {
+        let d = Math.floor(diff / (1000 * 60 * 60 * 24));
+        let h = Math.floor((diff / (1000 * 60 * 60)) % 24);
+        let m = Math.floor((diff / 1000 / 60) % 60);
+        let s = Math.floor((diff / 1000) % 60);
+        badge.innerText = d + "d " + (h<10?'0':'')+h + "h " + (m<10?'0':'')+m + "m";
+      }
+    }, 1000);
+  }
+}
+
+// AUTO-LOGIN AO ABRIR
+window.onload = () => {
+  let savedKey = localStorage.getItem('shadow_saved_key');
+  if(savedKey) {
+    isRememberChecked = true;
+    document.getElementById('checkLembrar').classList.add('checked');
+    fazerLogin(savedKey);
+  }
+}
+
+// FUNÇÕES DO PAINEL SHADOW TRICK
+function toggleRow(id) {
+  document.getElementById(id).classList.toggle('active');
+}
+
+function iniciarInjecao() {
+  document.getElementById("mainBtn").style.display = "none";
+  document.getElementById("loader-area").style.display = "block";
+  
+  let bar = document.getElementById("bar");
+  let width = 0;
+
+  let interval = setInterval(() => {
+    if (width >= 100) {
+      clearInterval(interval);
+      document.querySelector('.loader-text').innerText = "SUCESSO!";
+      document.querySelector('.loader-text').style.color = "#00ff88";
+      setTimeout(() => { window.location.href = "done://"; }, 800);
+    } else {
+      width += Math.random() * 8;
+      if(width > 100) width = 100;
+      bar.style.width = width + "%";
+    }
+  }, 100);
+}
+</script>
 </body>
 </html>
-
