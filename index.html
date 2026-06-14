@@ -1,232 +1,315 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
-<title>Shadow Trick</title>
-<style>
-:root { --primary: #9d00ff; --secondary: #ff0077; --bg: #050508; --glass: rgba(15, 15, 20, 0.6); --border: rgba(157, 0, 255, 0.3); }
-* { box-sizing: border-box; font-family: 'SF Pro Display', sans-serif; }
-body { background: var(--bg); color: #fff; margin: 0; display: flex; align-items: center; justify-content: center; height: 100vh; overflow: hidden; }
-.bg-animation { position: absolute; top: 0; left: 0; width: 100vw; height: 100vh; z-index: 0; background: radial-gradient(circle at 50% 50%, rgba(157, 0, 255, 0.15), transparent 60%); animation: pulseBg 6s infinite alternate; }
-@keyframes pulseBg { 0% { transform: scale(1); opacity: 0.8; } 100% { transform: scale(1.1); opacity: 1; } }
-.particles { position: absolute; width: 100%; height: 100%; z-index: 1; background-image: radial-gradient(var(--secondary) 1px, transparent 1px), radial-gradient(var(--primary) 1px, transparent 1px); background-size: 50px 50px; background-position: 0 0, 25px 25px; opacity: 0.1; animation: moveParticles 20s linear infinite; }
-@keyframes moveParticles { 0% { background-position: 0 0, 25px 25px; } 100% { background-position: 100px 100px, 125px 125px; } }
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>📦 ROLETA MISTERIOSA 📦</title>
+    <style>
+        * {
+            box-sizing: border-box;
+        }
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #0a0a0f;
+            color: #ffffff;
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            overflow: hidden;
+        }
 
-.container { width: 90%; max-width: 340px; background: var(--glass); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border-radius: 20px; padding: 35px 25px; border: 1px solid var(--border); box-shadow: 0 0 40px rgba(157, 0, 255, 0.2); text-align: center; position: relative; z-index: 10; }
-.timer-badge { position: absolute; top: -12px; right: 15px; background: linear-gradient(90deg, var(--primary), var(--secondary)); padding: 5px 12px; border-radius: 20px; font-size: 11px; font-weight: 900; letter-spacing: 1px; box-shadow: 0 5px 15px rgba(255,0,119,0.4); display: none; }
+        .fullscreen-container {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
 
-#login-screen { display: flex; flex-direction: column; align-items: center; }
-.shadow-title { font-size: 32px; font-weight: 900; letter-spacing: 4px; margin-bottom: 5px; background: linear-gradient(90deg, var(--primary), var(--secondary)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; filter: drop-shadow(0 0 10px rgba(157,0,255,0.5)); }
-.shadow-subtitle { font-size: 10px; color: #aaa; letter-spacing: 2px; margin-bottom: 30px; text-transform: uppercase; }
-input[type="text"] { width: 100%; background: rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.1); padding: 16px; border-radius: 12px; color: #fff; text-align: center; font-size: 15px; margin-bottom: 15px; outline: none; transition: 0.3s; }
-input[type="text"]:focus { border-color: var(--secondary); box-shadow: 0 0 15px rgba(255,0,119,0.3); }
+        .card-panel {
+            background-color: #12121a;
+            padding: 40px 30px;
+            border-radius: 16px;
+            border: 1px solid #00ffb3;
+            box-shadow: 0 0 25px rgba(0, 255, 179, 0.2);
+            text-align: center;
+            width: 100%;
+            max-width: 420px;
+            transition: all 0.3s ease;
+        }
 
-.remember-row { display: flex; align-items: center; justify-content: center; gap: 8px; margin-bottom: 25px; font-size: 12px; color: #bbb; cursor: pointer; }
-.custom-checkbox { width: 16px; height: 16px; border: 2px solid var(--primary); border-radius: 4px; display: flex; align-items: center; justify-content: center; transition: 0.2s; }
-.custom-checkbox.checked { background: var(--primary); }
-.custom-checkbox.checked::after { content: '✔'; font-size: 10px; color: #fff; font-weight: bold; }
+        h1 {
+            color: #00ffb3;
+            text-shadow: 0 0 12px rgba(0, 255, 179, 0.4);
+            font-size: 26px;
+            margin-top: 0;
+            margin-bottom: 30px;
+            letter-spacing: 1px;
+        }
 
-.btn-action { width: 100%; padding: 16px; background: linear-gradient(45deg, var(--primary), var(--secondary)); color: #fff; border: none; border-radius: 12px; font-weight: 900; text-transform: uppercase; letter-spacing: 1px; cursor: pointer; box-shadow: 0 5px 20px rgba(157, 0, 255, 0.4); transition: 0.2s; }
-.btn-action:active { transform: scale(0.96); }
+        p {
+            color: #b3b3cc;
+            font-size: 15px;
+            margin-bottom: 20px;
+        }
 
-#main-content { display: none; }
-.panel-title { font-size: 22px; font-weight: 900; margin-bottom: 25px; color: #fff; text-shadow: 0 0 10px rgba(255,255,255,0.2); }
-.panel-title span { color: var(--secondary); }
-.opt-row { background: rgba(0, 0, 0, 0.3); margin-bottom: 12px; padding: 15px 20px; border-radius: 14px; display: flex; justify-content: space-between; align-items: center; border: 1px solid rgba(255,255,255,0.05); transition: 0.3s; }
-.opt-row.active { background: rgba(157, 0, 255, 0.15); border-color: var(--primary); box-shadow: 0 0 15px rgba(157, 0, 255, 0.2); transform: scale(1.02); }
+        .input-field {
+            width: 100%;
+            padding: 14px;
+            margin-bottom: 20px;
+            border: 1px solid #232335;
+            border-radius: 8px;
+            background-color: #1a1a26;
+            color: #ffffff;
+            font-size: 16px;
+            outline: none;
+            text-align: center;
+            transition: 0.3s;
+        }
 
-.switch { width: 42px; height: 22px; position: relative; }
-.switch input { opacity: 0; width: 0; height: 0; }
-.slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background: #222; border-radius: 20px; transition: 0.3s; }
-.slider:before { position: absolute; content: ""; height: 16px; width: 16px; left: 3px; bottom: 3px; background: #555; border-radius: 50%; transition: 0.3s; }
-input:checked + .slider { background: rgba(255, 0, 119, 0.3); }
-input:checked + .slider:before { transform: translateX(20px); background: var(--secondary); box-shadow: 0 0 12px var(--secondary); }
+        .input-field:focus {
+            border-color: #00ffb3;
+            box-shadow: 0 0 10px rgba(0, 255, 179, 0.3);
+        }
 
-.range-container { margin: 25px 0; text-align: left; }
-input[type=range] { width: 100%; -webkit-appearance: none; background: #222; height: 6px; border-radius: 10px; }
-input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 18px; height: 18px; background: #fff; border-radius: 50%; border: 3px solid var(--secondary); box-shadow: 0 0 10px var(--secondary); }
+        .btn-action {
+            width: 100%;
+            padding: 14px;
+            background-color: #00ffb3;
+            color: #0a0a0f;
+            border: none;
+            border-radius: 8px;
+            font-weight: bold;
+            font-size: 16px;
+            cursor: pointer;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            transition: 0.3s;
+        }
 
-#loader-area { display: none; margin-top: 20px; }
-.progress-bg { width: 100%; height: 8px; background: #111; border-radius: 10px; overflow: hidden; border: 1px solid rgba(255,255,255,0.1); }
-.progress-bar { width: 0%; height: 100%; background: linear-gradient(90deg, var(--primary), var(--secondary)); transition: 0.1s; box-shadow: 0 0 10px var(--secondary); }
-.loader-text { font-size: 11px; color: var(--secondary); font-weight: bold; margin-bottom: 8px; letter-spacing: 1px; text-transform: uppercase; }
-#msg-erro { color: #ff3b3b; font-size: 11px; margin-top: 10px; font-weight: bold; display: none; text-transform: uppercase; }
-</style>
+        .btn-action:hover:not(:disabled) {
+            box-shadow: 0 0 20px rgba(0, 255, 179, 0.6);
+            transform: translateY(-2px);
+        }
+
+        .btn-action:disabled {
+            background-color: #1a332a;
+            color: #555;
+            cursor: not-allowed;
+            box-shadow: none;
+            transform: none;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        .error-message {
+            color: #ff4d4d;
+            font-size: 14px;
+            margin-top: 15px;
+            font-weight: 500;
+        }
+
+        /* Estilo do Visor da Roleta */
+        .roulette-box {
+            background-color: #1a1a26;
+            border: 2px dashed #00e5ff;
+            border-radius: 12px;
+            padding: 30px 15px;
+            margin-bottom: 25px;
+            min-height: 100px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        #display-premio {
+            font-size: 24px;
+            font-weight: bold;
+            color: #00e5ff;
+            text-shadow: 0 0 10px rgba(0, 229, 255, 0.4);
+            transition: 0.1s;
+        }
+    </style>
+
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
 </head>
 <body>
-<div class="bg-animation"></div><div class="particles"></div>
 
-<div class="container">
-  <div class="timer-badge" id="timerBadge">VERIFICANDO...</div>
-
-  <div id="login-screen">
-    <div class="shadow-title">SHADOW</div>
-    <div class="shadow-subtitle">Painel de Acesso Restrito</div>
-    <input type="text" id="keyInput" placeholder="DIGITE SUA KEY">
-    <div class="remember-row" onclick="toggleRemember()">
-      <div class="custom-checkbox" id="checkLembrar"></div><span>Lembre-se de mim</span>
-    </div>
-    <button class="btn-action" onclick="fazerLogin()">LOGAR</button>
-    <div id="msg-erro"></div>
-  </div>
-
-  <div id="main-content">
-    <div class="panel-title">SHADOW <span>TRICK</span></div>
-    <div class="opt-row" id="row1"><span style="font-size:14px; font-weight:bold;">Aimbot legit</span><label class="switch"><input type="checkbox" onchange="toggleRow('row1')"><span class="slider"></span></label></div>
-    <div class="opt-row" id="row2"><span style="font-size:14px; font-weight:bold;">Precision</span><label class="switch"><input type="checkbox" onchange="toggleRow('row2')"><span class="slider"></span></label></div>
-    <div class="opt-row" id="row3"><span style="font-size:14px; font-weight:bold;">MELHORAR FPS</span><label class="switch"><input type="checkbox" onchange="toggleRow('row3')"><span class="slider"></span></label></div>
-    <div class="range-container">
-      <div style="display:flex; justify-content:space-between; font-size:11px; margin-bottom:10px; color:#aaa; font-weight:bold;"><span>PRECISION LEVEL</span><span id="pct" style="color:var(--secondary);">0%</span></div>
-      <input type="range" min="0" max="100" value="0" oninput="document.getElementById('pct').innerText = this.value + '%'">
-    </div>
-    <button class="btn-action" id="mainBtn" onclick="iniciarInjecao()">INICIAR INJEÇÃO</button>
-    <div id="loader-area"><div class="loader-text">Injetando Bypass...</div><div class="progress-bg"><div class="progress-bar" id="bar"></div></div></div>
-  </div>
-</div>
-
-<script>
-const FB_API = atob("aHR0cHM6Ly9nZXJhZG9yLWtleS1lMzY0Zi1kZWZhdWx0LXJ0ZGIuZmlyZWJhc2Vpby5jb20va2V5cw==");
-let timerInterval; let isRememberChecked = false;
-
-function toggleRemember() {
-  isRememberChecked = !isRememberChecked;
-  document.getElementById('checkLembrar').classList.toggle('checked', isRememberChecked);
-}
-
-function showError(msg) {
-  let el = document.getElementById('msg-erro');
-  el.innerText = msg; el.style.display = 'block';
-  setTimeout(() => el.style.display = 'none', 3000);
-}
-
-function limparLogin() { localStorage.removeItem('shadow_saved_key'); }
-
-async function fazerLogin(autoKey = null) {
-  let key = autoKey || document.getElementById('keyInput').value.trim();
-  if(!key) return showError('DIGITE UMA KEY!');
-  document.querySelector('#login-screen .btn-action').innerText = "VERIFICANDO...";
-
-  try {
-    // CRIA A UID DO CELULAR
-    let myUID = localStorage.getItem('shadow_uid');
-    if (!myUID) {
-      myUID = "CEL-" + Math.floor(Math.random() * 999999999).toString(16).toUpperCase();
-      localStorage.setItem('shadow_uid', myUID);
-    }
-
-    let req = await fetch(FB_API + "/" + key + ".json");
-    let data = await req.json();
-
-    if(!data) { limparLogin(); document.querySelector('#login-screen .btn-action').innerText = "LOGAR"; return showError('KEY INEXISTENTE'); }
-    if(data.status === 'bloqueada' || data.status === 'pausada') { limparLogin(); document.querySelector('#screen-login .btn-action').innerText = "LOGAR"; return showError('KEY ' + data.status.toUpperCase()); }
-
-    // TRAVA: IMPEDE OUTRO CELULAR DE USAR A MESMA KEY
-    if (data.uid && data.uid !== "") {
-        if (data.uid !== myUID) {
-            limparLogin(); document.querySelector('#login-screen .btn-action').innerText = "LOGAR";
-            return showError('KEY EM USO EM OUTRO CELULAR');
-        }
-    }
-
-    let isPerm = (data.dias === 'Permanente');
-    let expDate = null;
-    let updates = {};
-
-    // REGISTRA O CELULAR NA PRIMEIRA VEZ
-    if (!data.uid || data.uid === "") {
-        updates.uid = myUID;
-        updates.status = "em uso";
-    }
-
-    // LÓGICA DE TEMPO TOTALMENTE PROTEGIDA CONTRA O "NaN"
-    if (!isPerm) {
-      if (!data.validade || data.validade === "") {
-        // Primeiro login! Inicia a data no banco.
-        let diasInt = parseInt(data.dias, 10);
-        if(isNaN(diasInt) || diasInt <= 0) diasInt = 1; 
+    <div class="fullscreen-container">
         
-        let timerStart = new Date();
-        timerStart.setDate(timerStart.getDate() + diasInt);
-        expDate = timerStart;
-        updates.validade = timerStart.toISOString();
-      } else {
-        // Logins seguintes, puxa a data e testa se está válida
-        expDate = new Date(data.validade);
+        <div id="tela-login" class="card-panel">
+            <h1>📦 ROLETA MISTERIOSA 📦</h1>
+            <p>Insira sua chave de acesso exclusiva para entrar</p>
+            <input type="text" id="chave-input" class="input-field" placeholder="CHAVE-XXXX-XXXX" autocomplete="off">
+            <button id="btn-entrar" class="btn-action" onclick="verificarEUsarChave()">Entrar no Painel</button>
+            <div id="erro-login" class="error-message hidden">Chave inválida ou já utilizada!</div>
+        </div>
+
+        <div id="tela-email" class="card-panel hidden">
+            <h1>📦 ROLETA MISTERIOSA 📦</h1>
+            <p>Informe seu Gmail para salvar os seus dados e liberar a roleta:</p>
+            <input type="email" id="email-input" class="input-field" placeholder="seuemail@gmail.com" autocomplete="off">
+            <button class="btn-action" onclick="prosseguirParaRoleta()">Continuar</button>
+            <div id="erro-email" class="error-message hidden">Por favor, insira um Gmail válido.</div>
+        </div>
+
+        <div id="tela-roleta" class="card-panel hidden">
+            <h1>📦 ROLETA MISTERIOSA 📦</h1>
+            <div class="roulette-box">
+                <div id="display-premio">Sorteie seu Prêmio!</div>
+            </div>
+            <button id="btn-girar" class="btn-action" onclick="iniciarGiro()">Girar Roleta</button>
+        </div>
+
+    </div>
+
+    <script>
+        // Configuração do seu Firebase Realtime Database
+        const firebaseConfig = {
+            databaseURL: "https://gerador-key-e364f-default-rtdb.firebaseio.com/"
+        };
         
-        if (isNaN(expDate.getTime())) {
-            // Se o firebase tiver algum lixo, recria a data pra salvar a key do cliente
-            let diasInt = parseInt(data.dias, 10) || 1;
-            let timerFix = new Date();
-            timerFix.setDate(timerFix.getDate() + diasInt);
-            expDate = timerFix;
-            updates.validade = timerFix.toISOString();
-        } else if (expDate.getTime() < new Date().getTime()) {
-            limparLogin(); document.querySelector('#login-screen .btn-action').innerText = "LOGAR";
-            return showError('KEY EXPIRADA');
+        // Inicializar Firebase
+        firebase.initializeApp(firebaseConfig);
+        const database = firebase.database();
+
+        let emailRegistrado = "";
+
+        // Função de validação e exclusão da chave (Uso Único)
+        function verificarEUsarChave() {
+            const inputChave = document.getElementById("chave-input").value.trim().toUpperCase();
+            const erroDiv = document.getElementById("erro-login");
+            const btnEntrar = document.getElementById("btn-entrar");
+
+            if (!inputChave) return;
+
+            btnEntrar.disabled = true;
+            erroDiv.classList.add("hidden");
+
+            // Verifica se a chave existe no nó /chaves
+            const refChave = database.ref("chaves/" + inputChave);
+            
+            refChave.once("value").then((snapshot) => {
+                if (snapshot.exists() && snapshot.val() === true) {
+                    // Chave é válida! Deleta imediatamente para ninguém mais usar
+                    refChave.remove().then(() => {
+                        // Avança de tela
+                        document.getElementById("tela-login").classList.add("hidden");
+                        document.getElementById("tela-email").classList.remove("hidden");
+                    });
+                } else {
+                    // Chave não existe ou já foi apagada
+                    erroDiv.classList.remove("hidden");
+                    btnEntrar.disabled = false;
+                }
+            }).catch((error) => {
+                console.error(error);
+                erroDiv.innerText = "Erro ao conectar ao Firebase.";
+                erroDiv.classList.remove("hidden");
+                btnEntrar.disabled = false;
+            });
         }
-      }
-    }
 
-    if (Object.keys(updates).length > 0) {
-      await fetch(FB_API + "/" + key + ".json", { 
-          method: 'PATCH', 
-          body: JSON.stringify(updates) 
-      });
-    }
+        // Validação e envio do e-mail
+        function prosseguirParaRoleta() {
+            const inputEmail = document.getElementById("email-input").value.trim().toLowerCase();
+            const erroDiv = document.getElementById("erro-email");
 
-    if(isRememberChecked && !autoKey) localStorage.setItem('shadow_saved_key', key);
-    abrirPainel(expDate);
+            if (!inputEmail || !inputEmail.includes("@") || !inputEmail.includes("gmail.com")) {
+                erroDiv.classList.remove("hidden");
+                return;
+            }
 
-  } catch(e) { document.querySelector('#login-screen .btn-action').innerText = "LOGAR"; showError('ERRO DE CONEXÃO'); }
-}
+            erroDiv.classList.add("hidden");
+            emailRegistrado = inputEmail;
 
-function abrirPainel(expDate) {
-  document.getElementById('login-screen').style.display = 'none';
-  document.getElementById('main-content').style.display = 'block';
-  let badge = document.getElementById('timerBadge'); badge.style.display = 'block';
+            // Salva o e-mail no Firebase para seu controle
+            database.ref("participantes").push({
+                email: emailRegistrado,
+                data: new Date().toLocaleString("pt-BR")
+            });
 
-  if(!expDate) {
-    badge.innerText = "PLANO VITALÍCIO";
-  } else {
-    timerInterval = setInterval(() => {
-      let diff = expDate.getTime() - new Date().getTime();
-      
-      if(isNaN(diff) || diff <= 0) { 
-          clearInterval(timerInterval); limparLogin(); window.location.reload(); 
-      } else {
-        let d = Math.floor(diff / (1000 * 60 * 60 * 24)); 
-        let h = Math.floor((diff / (1000 * 60 * 60)) % 24);
-        let m = Math.floor((diff / 1000 / 60) % 60); 
-        let s = Math.floor((diff / 1000) % 60);
-        badge.innerText = d + "d " + (h<10?'0':'')+h + "h " + (m<10?'0':'')+m + "m " + (s<10?'0':'')+s + "s";
-      }
-    }, 1000);
-  }
-}
+            // Avança para a roleta
+            document.getElementById("tela-email").classList.add("hidden");
+            document.getElementById("tela-roleta").classList.remove("hidden");
+        }
 
-window.onload = () => {
-  let savedKey = localStorage.getItem('shadow_saved_key');
-  if(savedKey) {
-    isRememberChecked = true; document.getElementById('checkLembrar').classList.add('checked');
-    fazerLogin(savedKey);
-  }
-}
+        // Configuração exata das probabilidades solicitadas
+        const listaPremios = [
+            { nome: "Nada", peso: 78 },
+            { nome: "Proxy iOS", peso: 1 },
+            { nome: "Mod Apk 1 dia", peso: 2 },
+            { nome: "Passador de replay", peso: 3 },
+            { nome: "Qualquer produto da loja de 1 real", peso: 5 },
+            { nome: "Ganhou 1 Real", peso: 2 },
+            { nome: "Ganhou 50 Centavos", peso: 3 },
+            { nome: "Ganhou 25 Centavos", peso: 5 }
+        ];
 
-function toggleRow(id) { document.getElementById(id).classList.toggle('active'); }
+        // Animação visual e sorteio
+        function iniciarGiro() {
+            const btnGirar = document.getElementById("btn-girar");
+            const display = document.getElementById("display-premio");
+            
+            btnGirar.disabled = true;
+            display.style.color = "#00e5ff";
 
-function iniciarInjecao() {
-  document.getElementById("mainBtn").style.display = "none"; document.getElementById("loader-area").style.display = "block";
-  let bar = document.getElementById("bar"); let width = 0;
-  let interval = setInterval(() => {
-    if (width >= 100) {
-      clearInterval(interval);
-      document.querySelector('.loader-text').innerText = "SUCESSO! ABRINDO JOGO...";
-      document.querySelector('.loader-text').style.color = "#00ff88";
-      setTimeout(() => { window.location.href = "freefire://"; }, 800);
-    } else { width += Math.random() * 8; if(width > 100) width = 100; bar.style.width = width + "%"; }
-  }, 100);
-}
-</script>
+            let contadorEfeito = 0;
+            
+            // Efeito visual mudando os nomes rapidamente
+            const intervaloEfeito = setInterval(() => {
+                const itemAleatorio = listaPremios[Math.floor(Math.random() * listaPremios.length)];
+                display.innerText = itemAleatorio.nome;
+                contadorEfeito += 100;
+
+                if (contadorEfeito >= 3000) { // O efeito dura 3 segundos
+                    clearInterval(intervaloEfeito);
+                    calcularResultadoFinal(display);
+                }
+            }, 100);
+        }
+
+        // Aplicação do cálculo de porcentagem real baseado nos pesos
+        function calcularResultadoFinal(elementoDisplay) {
+            const totalPesos = listaPremios.reduce((acumulador, item) => acumulador + item.peso, 0);
+            let numeroSorteado = Math.random() * totalPesos;
+            let somaAtual = 0;
+            let premioVencedor = "Nada";
+
+            for (let i = 0; i < listaPremios.length; i++) {
+                somaAtual += listaPremios[i].peso;
+                if (numeroSorteado <= somaAtual) {
+                    premioVencedor = listaPremios[i].nome;
+                    break;
+                }
+            }
+
+            // Mostra o resultado final na tela
+            elementoDisplay.innerText = premioVencedor;
+            
+            // Customiza a cor baseado no resultado
+            if (premioVencedor === "Nada") {
+                elementoDisplay.style.color = "#ff4d4d";
+                elementoDisplay.style.textShadow = "0 0 12px rgba(255, 77, 77, 0.5)";
+            } else {
+                elementoDisplay.style.color = "#00ffb3";
+                elementoDisplay.style.textShadow = "0 0 12px rgba(0, 255, 179, 0.5)";
+                
+                // Opcional: Salvar o prêmio que o e-mail ganhou no banco
+                database.ref("ganhadores").push({
+                    email: emailRegistrado,
+                    premio: premioVencedor,
+                    data: new Date().toLocaleString("pt-BR")
+                });
+            }
+        }
+    </script>
 </body>
 </html>
