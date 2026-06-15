@@ -5,311 +5,289 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>📦 ROLETA MISTERIOSA 📦</title>
     <style>
-        * {
-            box-sizing: border-box;
-        }
+        * { box-sizing: border-box; font-family: 'Segoe UI', Tahoma, sans-serif; }
         body {
-            margin: 0;
-            padding: 0;
-            background-color: #0a0a0f;
-            color: #ffffff;
-            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            overflow: hidden;
+            margin: 0; padding: 0;
+            background-color: #0a0a0f; color: #ffffff;
+            display: flex; flex-direction: column;
+            align-items: center; min-height: 100vh;
+            overflow-x: hidden;
         }
 
-        .fullscreen-container {
-            width: 100%;
-            height: 100%;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            padding: 20px;
+        .container {
+            flex: 1; display: flex; justify-content: center; align-items: center;
+            width: 100%; padding: 20px;
         }
 
         .card-panel {
-            background-color: #12121a;
-            padding: 40px 30px;
-            border-radius: 16px;
-            border: 1px solid #00ffb3;
-            box-shadow: 0 0 25px rgba(0, 255, 179, 0.2);
-            text-align: center;
-            width: 100%;
-            max-width: 420px;
-            transition: all 0.3s ease;
+            background-color: #12121a; padding: 30px; border-radius: 12px;
+            border: 1px solid #00e5ff; box-shadow: 0 0 25px rgba(0, 229, 255, 0.15);
+            text-align: center; width: 100%; max-width: 450px;
         }
 
-        h1 {
-            color: #00ffb3;
-            text-shadow: 0 0 12px rgba(0, 255, 179, 0.4);
-            font-size: 26px;
-            margin-top: 0;
-            margin-bottom: 30px;
-            letter-spacing: 1px;
-        }
+        h1 { color: #00e5ff; text-shadow: 0 0 10px rgba(0, 229, 255, 0.5); font-size: 24px; margin-bottom: 20px; }
+        p { color: #aaa; margin-bottom: 20px; font-size: 14px; }
 
-        p {
-            color: #b3b3cc;
-            font-size: 15px;
-            margin-bottom: 20px;
+        input {
+            width: 100%; padding: 14px; margin-bottom: 15px; border-radius: 8px;
+            border: 1px solid #333; background-color: #1a1a26; color: #fff; text-align: center;
+            outline: none; transition: 0.3s;
         }
-
-        .input-field {
-            width: 100%;
-            padding: 14px;
-            margin-bottom: 20px;
-            border: 1px solid #232335;
-            border-radius: 8px;
-            background-color: #1a1a26;
-            color: #ffffff;
-            font-size: 16px;
-            outline: none;
-            text-align: center;
-            transition: 0.3s;
-        }
-
-        .input-field:focus {
-            border-color: #00ffb3;
-            box-shadow: 0 0 10px rgba(0, 255, 179, 0.3);
-        }
+        input:focus { border-color: #00e5ff; box-shadow: 0 0 8px rgba(0, 229, 255, 0.3); }
 
         .btn-action {
-            width: 100%;
-            padding: 14px;
-            background-color: #00ffb3;
-            color: #0a0a0f;
-            border: none;
-            border-radius: 8px;
-            font-weight: bold;
-            font-size: 16px;
-            cursor: pointer;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            transition: 0.3s;
+            width: 100%; padding: 14px; background-color: #00e5ff; color: #000;
+            font-weight: bold; font-size: 16px; border: none; border-radius: 8px; cursor: pointer;
+            text-transform: uppercase; transition: 0.3s;
+        }
+        .btn-action:hover:not(:disabled) { box-shadow: 0 0 15px rgba(0, 229, 255, 0.6); transform: translateY(-2px); }
+        .btn-action:disabled { background-color: #1a3333; color: #555; cursor: not-allowed; }
+
+        .hidden { display: none !important; }
+        .error-message { color: #ff4d4d; margin-top: 10px; font-size: 14px; }
+
+        /* Estilos da Roleta Visual */
+        .roleta-container {
+            position: relative; width: 300px; height: 300px; margin: 0 auto 20px auto;
+        }
+        #canvas-roleta {
+            width: 100%; height: 100%; border-radius: 50%;
+            transition: transform 5s cubic-bezier(0.25, 0.1, 0.2, 1);
+            border: 3px solid #1a1a26; box-shadow: 0 0 15px rgba(0,0,0,0.8);
+        }
+        .pino {
+            position: absolute; top: -15px; left: 50%; transform: translateX(-50%);
+            width: 0; height: 0; border-left: 15px solid transparent; border-right: 15px solid transparent;
+            border-top: 30px solid #ff0055; z-index: 10;
+            filter: drop-shadow(0 4px 4px rgba(0,0,0,0.5));
         }
 
-        .btn-action:hover:not(:disabled) {
-            box-shadow: 0 0 20px rgba(0, 255, 179, 0.6);
-            transform: translateY(-2px);
+        #resultado-final {
+            font-size: 22px; font-weight: bold; min-height: 30px; margin-bottom: 15px;
+            color: #00e5ff; text-shadow: 0 0 8px rgba(0,229,255,0.4);
         }
 
-        .btn-action:disabled {
-            background-color: #1a332a;
-            color: #555;
-            cursor: not-allowed;
-            box-shadow: none;
-            transform: none;
+        /* Tabela de Probabilidades no Final */
+        .tabela-container {
+            width: 100%; max-width: 600px; padding: 20px; margin-bottom: 40px;
         }
-
-        .hidden {
-            display: none !important;
+        table {
+            width: 100%; border-collapse: collapse; background-color: #12121a;
+            border-radius: 8px; overflow: hidden; border: 1px solid #333;
         }
-
-        .error-message {
-            color: #ff4d4d;
-            font-size: 14px;
-            margin-top: 15px;
-            font-weight: 500;
-        }
-
-        /* Estilo do Visor da Roleta */
-        .roulette-box {
-            background-color: #1a1a26;
-            border: 2px dashed #00e5ff;
-            border-radius: 12px;
-            padding: 30px 15px;
-            margin-bottom: 25px;
-            min-height: 100px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
-
-        #display-premio {
-            font-size: 24px;
-            font-weight: bold;
-            color: #00e5ff;
-            text-shadow: 0 0 10px rgba(0, 229, 255, 0.4);
-            transition: 0.1s;
-        }
+        th, td { padding: 12px 15px; text-align: left; border-bottom: 1px solid #222; }
+        th { background-color: #1a1a26; color: #00e5ff; font-weight: bold; text-transform: uppercase; }
+        tr:hover { background-color: #1a1a26; }
+        td:nth-child(2) { color: #00ffb3; font-weight: bold; width: 100px; text-align: right; }
     </style>
-
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
 </head>
 <body>
 
-    <div class="fullscreen-container">
-        
+    <div class="container">
         <div id="tela-login" class="card-panel">
             <h1>📦 ROLETA MISTERIOSA 📦</h1>
-            <p>Insira sua chave de acesso exclusiva para entrar</p>
-            <input type="text" id="chave-input" class="input-field" placeholder="CHAVE-XXXX-XXXX" autocomplete="off">
-            <button id="btn-entrar" class="btn-action" onclick="verificarEUsarChave()">Entrar no Painel</button>
+            <input type="text" id="chave-input" placeholder="Sua Chave de Acesso" autocomplete="off">
+            <button id="btn-entrar" class="btn-action" onclick="verificarChave()">Acessar</button>
             <div id="erro-login" class="error-message hidden">Chave inválida ou já utilizada!</div>
         </div>
 
         <div id="tela-email" class="card-panel hidden">
             <h1>📦 ROLETA MISTERIOSA 📦</h1>
-            <p>Informe seu Gmail para salvar os seus dados e liberar a roleta:</p>
-            <input type="email" id="email-input" class="input-field" placeholder="seuemail@gmail.com" autocomplete="off">
-            <button class="btn-action" onclick="prosseguirParaRoleta()">Continuar</button>
-            <div id="erro-email" class="error-message hidden">Por favor, insira um Gmail válido.</div>
+            <p>Confirme seu e-mail para registrar seu prêmio:</p>
+            <input type="email" id="email-input" placeholder="seu@gmail.com" autocomplete="off">
+            <button class="btn-action" onclick="irParaRoleta()">Continuar</button>
+            <div id="erro-email" class="error-message hidden">Insira um e-mail válido.</div>
         </div>
 
         <div id="tela-roleta" class="card-panel hidden">
             <h1>📦 ROLETA MISTERIOSA 📦</h1>
-            <div class="roulette-box">
-                <div id="display-premio">Sorteie seu Prêmio!</div>
+            <div id="resultado-final">Gire para descobrir!</div>
+            
+            <div class="roleta-container">
+                <div class="pino"></div>
+                <canvas id="canvas-roleta" width="400" height="400"></canvas>
             </div>
-            <button id="btn-girar" class="btn-action" onclick="iniciarGiro()">Girar Roleta</button>
-        </div>
 
+            <button id="btn-girar" class="btn-action" onclick="girarRoleta()">🎲 GIRE AGORA 🎲</button>
+        </div>
+    </div>
+
+    <div class="tabela-container">
+        <table>
+            <thead>
+                <tr>
+                    <th>Produtos Disponíveis</th>
+                    <th>Chances</th>
+                </tr>
+            </thead>
+            <tbody id="corpo-tabela">
+                </tbody>
+        </table>
     </div>
 
     <script>
-        // Configuração do seu Firebase Realtime Database
-        const firebaseConfig = {
-            databaseURL: "https://gerador-key-e364f-default-rtdb.firebaseio.com/"
-        };
-        
-        // Inicializar Firebase
+        // Configuração do Firebase
+        const firebaseConfig = { databaseURL: "https://gerador-key-e364f-default-rtdb.firebaseio.com/" };
         firebase.initializeApp(firebaseConfig);
         const database = firebase.database();
-
         let emailRegistrado = "";
 
-        // Função de validação e exclusão da chave (Uso Único)
-        function verificarEUsarChave() {
-            const inputChave = document.getElementById("chave-input").value.trim().toUpperCase();
-            const erroDiv = document.getElementById("erro-login");
-            const btnEntrar = document.getElementById("btn-entrar");
+        // Lista Oficial de Produtos (Probabilidades exatas)
+        const produtos = [
+            { nome: "Nada", peso: 78, cor: "#ff3333" },
+            { nome: "Proxy iOS", peso: 1, cor: "#33ccff" },
+            { nome: "Mod Apk 1 dia", peso: 2, cor: "#9933ff" },
+            { nome: "Passador de replay", peso: 3, cor: "#ff9933" },
+            { nome: "Qualquer produto de R$1", peso: 5, cor: "#00cc66" },
+            { nome: "Ganhou R$ 1,00", peso: 2, cor: "#ffcc00" },
+            { nome: "Ganhou R$ 0,50", peso: 3, cor: "#ff66cc" },
+            { nome: "Ganhou R$ 0,25", peso: 5, cor: "#3366ff" }
+        ];
 
-            if (!inputChave) return;
+        // 1. Preencher Tabela no fim da página
+        const corpoTabela = document.getElementById("corpo-tabela");
+        produtos.forEach(prod => {
+            corpoTabela.innerHTML += `<tr><td>${prod.nome}</td><td>${prod.peso}%</td></tr>`;
+        });
 
-            btnEntrar.disabled = true;
-            erroDiv.classList.add("hidden");
+        // 2. Lógica de Telas (Firebase)
+        function verificarChave() {
+            const input = document.getElementById("chave-input").value.trim().toUpperCase();
+            if(!input) return;
+            document.getElementById("btn-entrar").disabled = true;
 
-            // Verifica se a chave existe no nó /chaves
-            const refChave = database.ref("chaves/" + inputChave);
-            
-            refChave.once("value").then((snapshot) => {
-                if (snapshot.exists() && snapshot.val() === true) {
-                    // Chave é válida! Deleta imediatamente para ninguém mais usar
-                    refChave.remove().then(() => {
-                        // Avança de tela
+            const ref = database.ref("chaves/" + input);
+            ref.once("value").then((snap) => {
+                if (snap.exists()) {
+                    ref.remove().then(() => {
                         document.getElementById("tela-login").classList.add("hidden");
                         document.getElementById("tela-email").classList.remove("hidden");
                     });
                 } else {
-                    // Chave não existe ou já foi apagada
-                    erroDiv.classList.remove("hidden");
-                    btnEntrar.disabled = false;
+                    document.getElementById("erro-login").classList.remove("hidden");
+                    document.getElementById("btn-entrar").disabled = false;
                 }
-            }).catch((error) => {
-                console.error(error);
-                erroDiv.innerText = "Erro ao conectar ao Firebase.";
-                erroDiv.classList.remove("hidden");
-                btnEntrar.disabled = false;
             });
         }
 
-        // Validação e envio do e-mail
-        function prosseguirParaRoleta() {
-            const inputEmail = document.getElementById("email-input").value.trim().toLowerCase();
-            const erroDiv = document.getElementById("erro-email");
-
-            if (!inputEmail || !inputEmail.includes("@") || !inputEmail.includes("gmail.com")) {
-                erroDiv.classList.remove("hidden");
-                return;
-            }
-
-            erroDiv.classList.add("hidden");
-            emailRegistrado = inputEmail;
-
-            // Salva o e-mail no Firebase para seu controle
-            database.ref("participantes").push({
-                email: emailRegistrado,
-                data: new Date().toLocaleString("pt-BR")
-            });
-
-            // Avança para a roleta
+        function irParaRoleta() {
+            const email = document.getElementById("email-input").value.trim();
+            if(!email.includes("@")) return document.getElementById("erro-email").classList.remove("hidden");
+            emailRegistrado = email;
             document.getElementById("tela-email").classList.add("hidden");
             document.getElementById("tela-roleta").classList.remove("hidden");
+            desenharRoleta();
         }
 
-        // Configuração exata das probabilidades solicitadas
-        const listaPremios = [
-            { nome: "Nada", peso: 78 },
-            { nome: "Proxy iOS", peso: 1 },
-            { nome: "Mod Apk 1 dia", peso: 2 },
-            { nome: "Passador de replay", peso: 3 },
-            { nome: "Qualquer produto da loja de 1 real", peso: 5 },
-            { nome: "Ganhou 1 Real", peso: 2 },
-            { nome: "Ganhou 50 Centavos", peso: 3 },
-            { nome: "Ganhou 25 Centavos", peso: 5 }
-        ];
-
-        // Animação visual e sorteio
-        function iniciarGiro() {
-            const btnGirar = document.getElementById("btn-girar");
-            const display = document.getElementById("display-premio");
-            
-            btnGirar.disabled = true;
-            display.style.color = "#00e5ff";
-
-            let contadorEfeito = 0;
-            
-            // Efeito visual mudando os nomes rapidamente
-            const intervaloEfeito = setInterval(() => {
-                const itemAleatorio = listaPremios[Math.floor(Math.random() * listaPremios.length)];
-                display.innerText = itemAleatorio.nome;
-                contadorEfeito += 100;
-
-                if (contadorEfeito >= 3000) { // O efeito dura 3 segundos
-                    clearInterval(intervaloEfeito);
-                    calcularResultadoFinal(display);
-                }
-            }, 100);
+        // 3. Sistema de Som (Zoadinha da Roleta)
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        function tocarSomTick() {
+            if(audioCtx.state === 'suspended') audioCtx.resume();
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.connect(gain); gain.connect(audioCtx.destination);
+            osc.type = 'triangle';
+            osc.frequency.setValueAtTime(600, audioCtx.currentTime);
+            osc.frequency.exponentialRampToValueAtTime(100, audioCtx.currentTime + 0.05);
+            gain.gain.setValueAtTime(0.1, audioCtx.currentTime); // Volume do som
+            gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.05);
+            osc.start(); osc.stop(audioCtx.currentTime + 0.05);
         }
 
-        // Aplicação do cálculo de porcentagem real baseado nos pesos
-        function calcularResultadoFinal(elementoDisplay) {
-            const totalPesos = listaPremios.reduce((acumulador, item) => acumulador + item.peso, 0);
-            let numeroSorteado = Math.random() * totalPesos;
-            let somaAtual = 0;
-            let premioVencedor = "Nada";
+        // 4. Desenho e Física da Roleta Gráfica
+        const canvas = document.getElementById("canvas-roleta");
+        const ctx = canvas.getContext("2d");
+        const arco = 2 * Math.PI / produtos.length;
+        let anguloAtual = 0;
 
-            for (let i = 0; i < listaPremios.length; i++) {
-                somaAtual += listaPremios[i].peso;
-                if (numeroSorteado <= somaAtual) {
-                    premioVencedor = listaPremios[i].nome;
-                    break;
-                }
+        function desenharRoleta() {
+            for(let i = 0; i < produtos.length; i++) {
+                const angulo = i * arco;
+                ctx.beginPath();
+                ctx.fillStyle = produtos[i].cor;
+                ctx.moveTo(200, 200); // Centro do canvas (400/2)
+                ctx.arc(200, 200, 200, angulo, angulo + arco);
+                ctx.fill();
+                ctx.stroke();
+
+                // Desenhar o texto da fatia
+                ctx.save();
+                ctx.translate(200, 200);
+                ctx.rotate(angulo + arco / 2);
+                ctx.textAlign = "right";
+                ctx.fillStyle = "#fff";
+                ctx.font = "bold 16px sans-serif";
+                ctx.shadowColor = "rgba(0,0,0,0.8)";
+                ctx.shadowBlur = 4;
+                ctx.fillText(produtos[i].nome, 180, 5);
+                ctx.restore();
             }
+        }
 
-            // Mostra o resultado final na tela
-            elementoDisplay.innerText = premioVencedor;
-            
-            // Customiza a cor baseado no resultado
-            if (premioVencedor === "Nada") {
-                elementoDisplay.style.color = "#ff4d4d";
-                elementoDisplay.style.textShadow = "0 0 12px rgba(255, 77, 77, 0.5)";
-            } else {
-                elementoDisplay.style.color = "#00ffb3";
-                elementoDisplay.style.textShadow = "0 0 12px rgba(0, 255, 179, 0.5)";
+        // Lógica de sorteio baseada nas porcentagens reais (Pesos)
+        function sortearIndiceReal() {
+            let total = produtos.reduce((acc, p) => acc + p.peso, 0);
+            let random = Math.random() * total;
+            let soma = 0;
+            for (let i = 0; i < produtos.length; i++) {
+                soma += produtos[i].peso;
+                if (random <= soma) return i;
+            }
+            return 0; // Fallback
+        }
+
+        function girarRoleta() {
+            document.getElementById("btn-girar").disabled = true;
+            document.getElementById("resultado-final").innerText = "Girando...";
+            document.getElementById("resultado-final").style.color = "#fff";
+
+            // Sorteia quem vai ganhar usando a matemática correta da porcentagem
+            const indiceSorteado = sortearIndiceReal();
+            const premio = produtos[indiceSorteado].nome;
+
+            // Calcula o ângulo que a roleta precisa parar para o pino (que está no topo - 270 graus)
+            const girosExtras = 5 * 360; // 5 voltas completas
+            const grausPorFatia = 360 / produtos.length;
+            // Onde o meio da fatia sorteada vai parar
+            const anguloFatia = (indiceSorteado * grausPorFatia) + (grausPorFatia / 2);
+            const anguloParada = girosExtras + (270 - anguloFatia); 
+
+            // Efeito Sonoro (Simulando o pino batendo)
+            let tempo = 0;
+            let intervaloSom = setInterval(() => {
+                tocarSomTick();
+                tempo += 150;
+                if(tempo > 4500) clearInterval(intervaloSom); // Freando
+            }, 150); // Faz a zoadinha no ritmo do giro
+
+            // Aplica a animação CSS no canvas
+            anguloAtual += anguloParada;
+            canvas.style.transform = `rotate(${anguloAtual}deg)`;
+
+            // Espera os 5 segundos da animação CSS acabar
+            setTimeout(() => {
+                clearInterval(intervaloSom);
+                const resultDiv = document.getElementById("resultado-final");
+                resultDiv.innerText = premio;
                 
-                // Opcional: Salvar o prêmio que o e-mail ganhou no banco
+                if(premio === "Nada") {
+                    resultDiv.style.color = "#ff3333";
+                    resultDiv.style.textShadow = "0 0 10px rgba(255,51,51,0.5)";
+                } else {
+                    resultDiv.style.color = "#00ffb3";
+                    resultDiv.style.textShadow = "0 0 10px rgba(0,255,179,0.5)";
+                }
+
+                // (Opcional) Salva o ganhador no banco
                 database.ref("ganhadores").push({
-                    email: emailRegistrado,
-                    premio: premioVencedor,
-                    data: new Date().toLocaleString("pt-BR")
+                    email: emailRegistrado, premio: premio, data: new Date().toLocaleString()
                 });
-            }
+
+            }, 5000);
         }
     </script>
 </body>
 </html>
+
