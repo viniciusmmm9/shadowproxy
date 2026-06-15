@@ -2,41 +2,67 @@
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>📦 ROLETA MISTERIOSA 📦</title>
     <style>
         * { box-sizing: border-box; font-family: 'Segoe UI', Tahoma, sans-serif; }
+        
         body {
-            margin: 0; padding: 0;
-            background-color: #0a0a0f; color: #ffffff;
-            display: flex; flex-direction: column;
-            align-items: center; min-height: 100vh;
+            margin: 0; 
+            padding: 0;
+            background-color: #0a0a0f; 
+            color: #ffffff;
+            /* Garante que ocupe a tela inteira, permitindo rolagem se a tela for muito pequena */
+            min-height: 100dvh; 
+            display: flex; 
+            flex-direction: column;
             overflow-x: hidden;
         }
 
         .container {
-            flex: 1; display: flex; flex-direction: column; justify-content: center; align-items: center;
-            width: 100%; padding: 20px;
+            flex: 1; 
+            display: flex; 
+            flex-direction: column; 
+            justify-content: center; 
+            align-items: center;
+            width: 100%; 
+            padding: 10px;
         }
 
+        /* O painel agora se adapta melhor como "tela cheia" */
         .card-panel {
-            background-color: #12121a; padding: 30px; border-radius: 12px;
-            border: 1px solid #00e5ff; box-shadow: 0 0 25px rgba(0, 229, 255, 0.15);
-            text-align: center; width: 100%; max-width: 450px;
-            display: flex; flex-direction: column; align-items: center;
+            background-color: #12121a; 
+            padding: 25px 20px; 
+            border-radius: 16px;
+            border: 1px solid #00e5ff; 
+            box-shadow: 0 0 25px rgba(0, 229, 255, 0.15);
+            text-align: center; 
+            width: 100%; 
+            max-width: 450px;
+            display: flex; 
+            flex-direction: column; 
+            align-items: center;
+            justify-content: center;
+            min-height: 95dvh; /* Faz o painel esticar lindamente na tela */
         }
 
-        h1 { color: #00e5ff; text-shadow: 0 0 10px rgba(0, 229, 255, 0.5); font-size: 24px; margin-bottom: 20px; }
+        h1 { 
+            color: #00e5ff; 
+            text-shadow: 0 0 10px rgba(0, 229, 255, 0.5); 
+            font-size: 24px; 
+            margin-top: 0;
+            margin-bottom: 25px; 
+        }
 
         input {
-            width: 100%; padding: 14px; margin-bottom: 15px; border-radius: 8px;
+            width: 100%; padding: 16px; margin-bottom: 15px; border-radius: 8px;
             border: 1px solid #333; background-color: #1a1a26; color: #fff; text-align: center;
             outline: none; transition: 0.3s; font-size: 16px; font-weight: bold;
         }
         input:focus { border-color: #00e5ff; box-shadow: 0 0 8px rgba(0, 229, 255, 0.3); }
 
         .btn-action {
-            width: 100%; padding: 14px; background-color: #00e5ff; color: #000;
+            width: 100%; padding: 15px; background-color: #00e5ff; color: #000;
             font-weight: bold; font-size: 16px; border: none; border-radius: 8px; cursor: pointer;
             text-transform: uppercase; transition: 0.3s;
         }
@@ -46,9 +72,9 @@
         .hidden { display: none !important; }
         .error-message { color: #ff4d4d; margin-top: 10px; font-size: 14px; font-weight: bold; }
 
-        /* Estilos da Roleta Visual */
+        /* Estilos da Roleta Visual com tamanho otimizado para não espremer o resto */
         .roleta-container {
-            position: relative; width: 320px; height: 320px; margin: 0 auto 30px auto;
+            position: relative; width: 300px; height: 300px; margin: 0 auto 30px auto;
         }
         #canvas-roleta {
             width: 100%; height: 100%; border-radius: 50%;
@@ -62,18 +88,18 @@
             filter: drop-shadow(0 4px 5px rgba(0,0,0,0.7));
         }
 
-        /* Tabela de Probabilidades */
+        /* Tabela de Probabilidades (Agora centralizada no final) */
         .tabela-container {
-            width: 100%; margin-top: 30px;
+            width: 100%; margin-top: 30px; margin-bottom: 10px;
         }
         table {
             width: 100%; border-collapse: collapse; background-color: #0d0d14;
             border-radius: 8px; overflow: hidden; border: 1px solid #333;
         }
-        th, td { padding: 10px 12px; text-align: left; border-bottom: 1px solid #222; font-size: 14px; }
+        th, td { padding: 12px 10px; text-align: left; border-bottom: 1px solid #222; font-size: 14px; }
         th { background-color: #1a1a26; color: #00e5ff; font-weight: bold; text-transform: uppercase; text-align: center; }
         tr:hover { background-color: #1a1a26; }
-        td:nth-child(2) { color: #00ffb3; font-weight: bold; text-align: right; width: 80px; }
+        td:nth-child(2) { color: #00ffb3; font-weight: bold; text-align: right; width: 70px; }
 
         /* Modal de Notificação do Prêmio */
         .modal-overlay {
@@ -92,9 +118,8 @@
             100% { transform: scale(1); opacity: 1; }
         }
         .modal-titulo { color: #fff; font-size: 20px; margin-bottom: 10px; text-transform: uppercase; letter-spacing: 1px; }
-        .modal-premio { font-size: 28px; font-weight: bold; margin-bottom: 20px; text-shadow: 0 0 15px rgba(0,255,179,0.6); }
+        .modal-premio { font-size: 26px; font-weight: bold; margin-bottom: 20px; text-shadow: 0 0 15px rgba(0,255,179,0.6); }
         
-        /* Estilo da Caixa de Ticket */
         .instrucao-ticket {
             background-color: rgba(0, 229, 255, 0.1);
             border: 1px dashed #00e5ff;
@@ -109,8 +134,8 @@
 
         .modal-btn {
             background-color: #242430; color: #00e5ff; border: 1px solid #00e5ff;
-            padding: 12px 30px; border-radius: 6px; font-weight: bold; cursor: pointer; text-transform: uppercase; transition: 0.3s;
-            width: 100%;
+            padding: 14px 30px; border-radius: 6px; font-weight: bold; cursor: pointer; text-transform: uppercase; transition: 0.3s;
+            width: 100%; font-size: 16px;
         }
         .modal-btn:hover { background-color: #00e5ff; color: #000; }
 
@@ -122,6 +147,7 @@
 
     <div class="container">
         
+        <!-- Tela 1: Login -->
         <div id="tela-login" class="card-panel">
             <h1>📦 ROLETA MISTERIOSA 📦</h1>
             <input type="text" id="chave-input" placeholder="Insira sua Chave SK" autocomplete="off">
@@ -129,16 +155,19 @@
             <div id="erro-login" class="error-message hidden">Chave inválida ou já utilizada!</div>
         </div>
 
+        <!-- Tela 2: Roleta + Tabela -->
         <div id="tela-roleta" class="card-panel hidden">
             <h1>📦 GIRE PARA GANHAR 📦</h1>
             
             <div class="roleta-container">
                 <div class="pino"></div>
+                <!-- O tamanho interno do canvas mantemos 400x400 para qualidade, o CSS redimensiona a roleta visual -->
                 <canvas id="canvas-roleta" width="400" height="400"></canvas>
             </div>
 
             <button id="btn-girar" class="btn-action" onclick="girarRoleta()">🎲 GIRAR ROLETA 🎲</button>
 
+            <!-- Tabela de Produtos -->
             <div class="tabela-container">
                 <table>
                     <thead>
@@ -148,13 +177,15 @@
                         </tr>
                     </thead>
                     <tbody id="corpo-tabela">
-                        </tbody>
+                        <!-- Preenchido via JavaScript -->
+                    </tbody>
                 </table>
             </div>
         </div>
 
     </div>
 
+    <!-- Modal de Notificação do Prêmio -->
     <div id="modal-notificacao" class="modal-overlay hidden">
         <div class="modal-box">
             <div class="modal-titulo">Você tirou:</div>
@@ -174,7 +205,7 @@
         firebase.initializeApp(firebaseConfig);
         const database = firebase.database();
 
-        // Lista de Produtos com nomes bem ajustados
+        // Lista de Produtos
         const produtos = [
             { nome: "Nada", peso: 78, cor: "#ff3333" },
             { nome: "Proxy iOS", peso: 1, cor: "#33ccff" },
@@ -228,14 +259,14 @@
             osc.start(); osc.stop(audioCtx.currentTime + 0.05);
         }
 
-        // 4. Desenho Correto (Com limite de largura para não cortar)
+        // 4. Desenho Correto (Com limite rigoroso para NÃO vazar para o centro)
         const canvas = document.getElementById("canvas-roleta");
         const ctx = canvas.getContext("2d");
         const arco = 2 * Math.PI / produtos.length;
         let anguloAtual = 0;
 
         function desenharRoleta() {
-            const raio = canvas.width / 2; // 200
+            const raio = canvas.width / 2; // É 200
             for(let i = 0; i < produtos.length; i++) {
                 const angulo = i * arco;
                 
@@ -249,23 +280,27 @@
                 ctx.strokeStyle = "#1a1a26";
                 ctx.stroke();
 
-                // Desenha o Texto com formatação e MaxWidth
+                // Escreve o texto com proteção de vazamento
                 ctx.save();
                 ctx.translate(raio, raio);
                 ctx.rotate(angulo + arco / 2);
-                ctx.textAlign = "right";
+                
+                // Alinhamento à direita significa que ele desenha da borda pra dentro
+                ctx.textAlign = "right"; 
                 ctx.textBaseline = "middle";
                 ctx.fillStyle = "#ffffff";
-                ctx.font = "bold 14px sans-serif";
+                
+                // Diminuí levemente a fonte de 14px para 13px para garantir melhor encaixe
+                ctx.font = "bold 13px sans-serif"; 
                 
                 ctx.shadowColor = "rgba(0,0,0,0.9)";
                 ctx.shadowBlur = 3;
                 ctx.shadowOffsetX = 1;
                 ctx.shadowOffsetY = 1;
 
-                // O 140 ali no final é a mágica: é o limite máximo de largura do texto. 
-                // Se o texto for maior que 140 pixels, o canvas espreme ele pra não vazar!
-                ctx.fillText(produtos[i].nome, raio - 25, 0, 140); 
+                // O texto começa colado na borda externa (raio - 15)
+                // O limite 105 assegura que ele morra antes de chegar na parte espremida do miolo
+                ctx.fillText(produtos[i].nome, raio - 15, 0, 105); 
                 ctx.restore();
             }
         }
@@ -317,15 +352,13 @@
             texto.innerText = premio.nome;
             
             if (premio.nome === "Nada") {
-                // Se não ganhou nada
                 texto.style.color = "#ff3333";
                 texto.style.textShadow = "0 0 15px rgba(255, 51, 51, 0.6)";
-                avisoTicket.classList.add("hidden"); // Esconde o aviso de abrir ticket
+                avisoTicket.classList.add("hidden"); 
             } else {
-                // Se ganhou um prêmio real
                 texto.style.color = "#00ffb3";
                 texto.style.textShadow = "0 0 15px rgba(0, 255, 179, 0.6)";
-                avisoTicket.classList.remove("hidden"); // Mostra o aviso para resgatar
+                avisoTicket.classList.remove("hidden"); 
             }
             
             modal.classList.remove("hidden");
